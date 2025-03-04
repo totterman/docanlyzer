@@ -1,0 +1,51 @@
+version: '3.8'
+services:
+
+#  depends_on:
+#    database:
+#      condition: service_healthy
+#    ollama-pull:
+#      condition: service_completed_successfully
+
+  ollama:
+    build: .
+    container_name: anlyzer-ollama
+    image: ollama/ollama:rocm
+    healthcheck:
+      test: ollama --version || exit 1
+      interval: 10s
+    ports:
+      - "11434:11434"
+    volumes:
+      - ./ollama:/root/.ollama
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    networks:
+      - net
+
+  neo:
+    user: neo4j:neo4j
+    container_name: anlyzer-neo4j
+    image: neo4j:latest
+    ports:
+      - 7687:7687
+      - 7474:7474
+    volumes:
+      - /home/neo4j/data:/data
+      - /home/neo4j/logs:/logs
+    environment:
+      - NEO4J_AUTH=${NEO4J_USERNAME-neo4j}/${NEO4J_PASSWORD-topsecret}
+      - NEO4J_PLUGINS=["apoc"]
+      - NEO4J_db_tx__log_rotation_retention__policy=false
+      - NEO4J_dbms_security_procedures_unrestricted=apoc.*
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider localhost:7474 || exit 1"]
+      interval: 15s
+      timeout: 30s
+      retries: 10
+    networks:
+      - net
+
+networks:
+  net:

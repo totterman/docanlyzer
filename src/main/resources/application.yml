@@ -1,0 +1,27 @@
+server:
+  ssl:
+    enabled: false
+llm:
+  ollama: false
+spring:
+  application:
+    name: doc-anlyzer
+  azure:
+    openai:
+      key: ${AZURE_OPENAI_API_KEY}
+      endpoint: ${AZURE_OPENAI_ENDPOINT}
+      deployment-name: ${AZURE_OPENAI_DEPLOYMENT_NAME}
+      embedding-name: workshop_embedded
+  neo4j:
+    uri: ${NEO4J_URI:bolt://localhost:7687}
+    authentication:
+      username: ${NEO4J_USERNAME:neo4j}
+      password: ${NEO4J_PASSWORD:topsecret}
+langchain4j:
+  ollama:
+    chat-model:
+      base-url: http://localhost:11434
+      model-name: mistral
+    embedding-model:
+      base-url: http://localhost:11434
+      model-name: nomic-embed-text
